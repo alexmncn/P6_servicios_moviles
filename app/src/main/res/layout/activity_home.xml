@@ -7,32 +7,25 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".MainActivity">
+    tools:context=".HomeActivity">
 
-    <EditText
-        android:id="@+id/emailEditText"
+    <TextView
+        android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:hint="Correo Electronico" />
+        android:text="user_email"/>
 
-    <EditText
-        android:id="@+id/passwordEditText"
+    <TextView
+        android:id="@+id/providerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:hint="Contraseña" />
+        android:text="Provider"/>
 
     <Button
-        android:id="@+id/registerButton"
+        android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Registrarse" />
+        android:text="Cerrar Sesion" />
 
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Iniciar Sesion" />
 
 </LinearLayout>
