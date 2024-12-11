@@ -2,6 +2,7 @@ package com.alexmncn.p6_servicios_moviles;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AlertDialog;
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // Obtiene el ususario actual
         Intent i = new Intent(this, HomeActivity.class);
         i.putExtra("email", email);
-        i.putExtra("user", user.getProviderData().get(0).getProviderId());
+        i.putExtra("provider", user.getProviderData().get(0).getProviderId());
         startActivity(i);
     }
 }
