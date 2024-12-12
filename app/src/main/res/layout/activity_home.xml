@@ -67,6 +67,12 @@
         android:text="Recuperar Imagen" />
 
     <Button
+        android:id="@+id/uploadImageButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subir Imagen" />
+
+    <Button
         android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

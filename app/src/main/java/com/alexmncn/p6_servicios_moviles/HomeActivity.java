@@ -1,9 +1,11 @@
 package com.alexmncn.p6_servicios_moviles;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,6 +31,8 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     StorageReference storageRef = FirebaseStorage.getInstance().getReference();
 
+    private static final int PICK_IMAGE_REQUEST = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +49,26 @@ public class HomeActivity extends AppCompatActivity {
         getData(email);
         deleteData(email);
         getImage();
+        chooseImage();
+        deleteImage("");
+    }
+
+    private void setup(String email, String provider) {
+        // Obtener referencias a los TextViews y establecer su texto
+        TextView emailTextView = findViewById(R.id.emailTextView);
+        TextView providerTextView = findViewById(R.id.providerTextView);
+        emailTextView.setText(email);
+        providerTextView.setText(provider);
+
+        // Obtener referencia al boton de cerrar sesion
+        Button cerrarSesion = findViewById(R.id.logoutButton);
+
+        // Configurar el listener para el boton de cerrar sesion
+        cerrarSesion.setOnClickListener(view-> {
+            // Cerrar sesion en Firebase y volver a la actividad anterior
+            FirebaseAuth.getInstance().signOut();
+            super.getOnBackPressedDispatcher().onBackPressed();
+        });
     }
 
     private void saveData(String email) {
@@ -125,21 +150,55 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void setup(String email, String provider) {
-        // Obtener referencias a los TextViews y establecer su texto
-        TextView emailTextView = findViewById(R.id.emailTextView);
-        TextView providerTextView = findViewById(R.id.providerTextView);
-        emailTextView.setText(email);
-        providerTextView.setText(provider);
+    // Función para subir una imagen seleccionada de la galería
+    private void chooseImage() {
+        Button uploadImageButton = findViewById(R.id.uploadImageButton);
 
-        // Obtener referencia al boton de cerrar sesion
-        Button cerrarSesion = findViewById(R.id.logoutButton);
-
-        // Configurar el listener para el boton de cerrar sesion
-        cerrarSesion.setOnClickListener(view-> {
-            // Cerrar sesion en Firebase y volver a la actividad anterior
-            FirebaseAuth.getInstance().signOut();
-            super.getOnBackPressedDispatcher().onBackPressed();
+        uploadImageButton.setOnClickListener(v -> {
+            // Abrir galería
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
         });
     }
+
+    // Sobrescribir onActivityResult para manejar el resultado de la selección de imagen
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+
+            // Subir la imagen a Firebase Storage
+            uploadImageToFirebase(imageUri);
+        }
+    }
+
+    private void uploadImageToFirebase(Uri imageUri) {
+        StorageReference imageRef = storageRef.child("uploads/" + System.currentTimeMillis() + ".jpg");
+
+        imageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        Log.d("Firebase", "Imagen subida exitosamente: " + uri.toString());
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firebase", "Error al subir la imagen", e);
+                });
+    }
+
+    // Función para eliminar una imagen de Firebase Storage
+    private void deleteImage(String imagePath) {
+        StorageReference imageRef = storageRef.child(imagePath);
+
+        imageRef.delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firebase", "Imagen eliminada exitosamente");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firebase", "Error al eliminar la imagen", e);
+                });
+    }
+
 }
