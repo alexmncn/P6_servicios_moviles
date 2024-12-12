@@ -36,6 +36,11 @@
         android:hint="Telefono"
         android:inputType="number|phone" />
 
+    <ImageView
+        android:id="@+id/remoteImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
@@ -54,6 +59,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Eliminar" />
+
+    <Button
+        android:id="@+id/getImageButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Recuperar Imagen" />
 
     <Button
         android:id="@+id/logoutButton"

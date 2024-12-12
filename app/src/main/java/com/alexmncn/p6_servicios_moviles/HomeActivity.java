@@ -1,13 +1,24 @@
 package com.alexmncn.p6_servicios_moviles;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +26,7 @@ import java.util.Map;
 public class HomeActivity extends AppCompatActivity {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    StorageReference storageRef = FirebaseStorage.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +43,7 @@ public class HomeActivity extends AppCompatActivity {
         saveData(email);
         getData(email);
         deleteData(email);
+        getImage();
     }
 
     private void saveData(String email) {
@@ -82,6 +95,33 @@ public class HomeActivity extends AppCompatActivity {
             numberEditText.setText("");
 
             db.collection("users").document(email).delete();
+        });
+    }
+
+    private void getImage() {
+        Button getImage = findViewById(R.id.getImageButton);
+        ImageView imageView = findViewById(R.id.remoteImageView);
+
+        getImage.setOnClickListener(v -> {
+            String filename = "Logo_Tienda_linea_cesta.jpg";
+            StorageReference islandRef = storageRef.child(filename);
+
+            final long ONE_MEGABYTE = 1024 * 1024;
+            islandRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                    if (bitmap != null) {
+                        imageView.setImageBitmap(bitmap);
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("image", e.toString());
+                }
+            });
         });
     }
 
